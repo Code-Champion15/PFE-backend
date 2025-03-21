@@ -1,11 +1,10 @@
 const Page = require('../Models/pageModel');
 
-
 exports.createPage = async (req, res) => {
   try {
-    const { name, generatedCode } = req.body;
-    const newPage = await Page.create({ name, generatedCode });
-    res.status(201).json(newPage); 
+    const { name, content, parentId, route } = req.body;
+    const newPage = await Page.create({ name, content, parentId, route });
+    res.status(201).json(newPage);
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la création de la page', error });
   }
@@ -13,8 +12,8 @@ exports.createPage = async (req, res) => {
 
 exports.getPages = async (req, res) => {
   try {
-    const pages = await Page.findAll(); 
-    res.status(200).json(pages); 
+    const pages = await Page.findAll();
+    res.status(200).json(pages);
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la récupération des pages', error });
   }
@@ -22,9 +21,9 @@ exports.getPages = async (req, res) => {
 
 exports.getPageById = async (req, res) => {
   try {
-    const page = await Page.findByPk(req.params.id); 
+    const page = await Page.findByPk(req.params.id);
     if (page) {
-      res.status(200).json(page); 
+      res.status(200).json(page);
     } else {
       res.status(404).json({ message: 'Page non trouvée' });
     }
@@ -35,13 +34,13 @@ exports.getPageById = async (req, res) => {
 
 exports.updatePage = async (req, res) => {
   try {
-    const { name, generatedCode } = req.body;
+    const { name, content } = req.body;
     const page = await Page.findByPk(req.params.id);
     if (page) {
       page.name = name || page.name;
-      page.generatedCode = generatedCode || page.generatedCode;
+      page.content = content || page.content;
       await page.save();
-      res.status(200).json(page); 
+      res.status(200).json(page);
     } else {
       res.status(404).json({ message: 'Page non trouvée' });
     }
@@ -54,7 +53,7 @@ exports.deletePage = async (req, res) => {
   try {
     const page = await Page.findByPk(req.params.id);
     if (page) {
-      await page.destroy(); 
+      await page.destroy();
       res.status(200).json({ message: 'Page supprimée' });
     } else {
       res.status(404).json({ message: 'Page non trouvée' });
@@ -63,3 +62,100 @@ exports.deletePage = async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la suppression de la page', error });
   }
 };
+
+exports.getAllPagesWithChildren = async (req, res) => {
+  try {
+    const pages = await Page.findAll({
+      where: { parentId: null },
+      include: [{ model: Page, as: "Children" }],
+    });
+
+    if (!pages || pages.length === 0) {
+      return res.status(404).json({ message: "Aucune page trouvée" });
+    }
+
+    res.status(200).json(pages);
+  } catch (error) {
+    res.status(500).json({ message: "Erreur serveur", error });
+  }
+};
+
+// exports.getPageByRoute = async (req, res) => {
+//   try {
+//     const { route } = req.params;
+//     const page = await Page.findOne({ where: { route } });
+//     if (!page) return res.status(404).json({ message: "Page non trouvée" });
+//     res.json({
+//       id: page.id,
+//       name: page.name,
+//       route: page.route,
+//       parentId: page.parentId,
+//       content: JSON.parse(page.content), // Convertir le JSON stocké en objet JS
+//     });
+//     //res.json(page);
+//   } catch (error) {
+//     res.status(500).json({ message: "Erreur serveur", error });
+//   }
+// };
+
+exports.getPageByRoute = async (req, res) => {
+  try {
+    const { route } = req.params;
+    const page = await Page.findOne({ where: { route } });
+
+    if (!page) return res.status(404).json({ message: "Page non trouvée" });
+
+    // Vérifier que le contenu est bien un JSON parsable
+    let parsedContent;
+    try {
+      parsedContent = JSON.parse(page.content);
+    } catch (error) {
+      return res.status(500).json({ message: "Erreur de parsing du JSON", error });
+    }
+
+    res.json({
+      id: page.id,
+      name: page.name,
+      route: page.route,
+      content: parsedContent, // Renvoie le JSON sous forme d'objet
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Erreur serveur", error });
+  }
+};
+
+
+exports.getContentById = async (req, res) => {
+  try {
+    const page = await Page.findByPk(req.params.id);
+    if (!page) {
+      return res.status(404).json({ message: 'Page non trouvée.' });
+    }
+    res.status(200).json({ content: page.content });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la récupération du contenu de la page.', error });
+  }
+};
+
+exports.getContentByRoute = async (req, res) => {
+  try {
+    const { route } = req.params;
+    const page = await Page.findOne({ where: { route } });
+
+    if (!page) {
+      return res.status(404).json({ message: "Page non trouvée" });
+    }
+
+    let parsedContent;
+    try {
+      parsedContent = JSON.parse(page.content);
+    } catch (error) {
+      return res.status(500).json({ message: "Erreur de parsing du JSON", error });
+    }
+
+    res.json(parsedContent);
+  } catch (error) {
+    res.status(500).json({ message: "Erreur serveur", error });
+  }
+};
+
