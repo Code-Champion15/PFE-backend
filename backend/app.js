@@ -1,4 +1,5 @@
 require('dotenv').config(); 
+const {sequelize} = require("./Db/db");
 
 var createError = require('http-errors');
 var express = require('express');
@@ -6,6 +7,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors'); 
+
 
 const http = require('http');
 const { connectDB } = require('./Db/db');
@@ -15,8 +17,16 @@ var usersRouter = require('./routes/userRoute');
 var pagesRouter = require('./routes/pageRoute')
 var app = express();
 
+
 connectDB();
 
+sequelize.sync({ alter: true })
+  .then(() => {
+    console.log("Base de données synchronisée !");
+  })
+  .catch((error) => {
+    console.error("Erreur de synchronisation de la base de données :", error);
+  })
 app.use(logger('dev'));
 app.use(cors()); 
 app.use(express.json());
