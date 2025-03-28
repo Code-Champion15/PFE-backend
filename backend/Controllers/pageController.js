@@ -19,16 +19,36 @@ exports.getPages = async (req, res) => {
   }
 };
 
+// exports.getPageById = async (req, res) => {
+//   try {
+//     const page = await Page.findByPk(req.params.id);
+//     if (page) {
+//       res.status(200).json(page);
+//     } else {
+//       res.status(404).json({ message: 'Page non trouvée' });
+//     }
+//   } catch (error) {
+//     res.status(500).json({ message: 'Erreur lors de la récupération de la page', error });
+//   }
+// };
+
 exports.getPageById = async (req, res) => {
-  try {
-    const page = await Page.findByPk(req.params.id);
-    if (page) {
-      res.status(200).json(page);
-    } else {
-      res.status(404).json({ message: 'Page non trouvée' });
+  try{
+    const {id} = req.params;
+    console.log(`backend: Recuperation de la page avec ID: ${id}`);
+    const page = await Page.findByPk(id);
+    if (!page) {
+      console.log("backend: page non trouvé");
+      return res.status(404).json({message: "Page non trouvée"});
     }
+    console.log("Backend : Page trouvée:", page);
+
+    const content = typeof page.content === "string" ? JSON.parse(page.content) : page.content;
+    return res.json({ ...page.toJSON(), content });
+
   } catch (error) {
-    res.status(500).json({ message: 'Erreur lors de la récupération de la page', error });
+    console.error("Backend erreur lors de la recuperation de la page:",error);
+    return res.status(500).json({message: "Erreur serveur", error});
   }
 };
 
@@ -80,23 +100,6 @@ exports.getAllPagesWithChildren = async (req, res) => {
   }
 };
 
-// exports.getPageByRoute = async (req, res) => {
-//   try {
-//     const { route } = req.params;
-//     const page = await Page.findOne({ where: { route } });
-//     if (!page) return res.status(404).json({ message: "Page non trouvée" });
-//     res.json({
-//       id: page.id,
-//       name: page.name,
-//       route: page.route,
-//       parentId: page.parentId,
-//       content: JSON.parse(page.content), // Convertir le JSON stocké en objet JS
-//     });
-//     //res.json(page);
-//   } catch (error) {
-//     res.status(500).json({ message: "Erreur serveur", error });
-//   }
-// };
 
 exports.getPageByRoute = async (req, res) => {
   try {
@@ -156,6 +159,39 @@ exports.getContentByRoute = async (req, res) => {
     res.json(parsedContent);
   } catch (error) {
     res.status(500).json({ message: "Erreur serveur", error });
+  }
+};
+
+exports.updatePageContent = async (req, res) => {
+  try{
+    const {id} = req.params;
+    const {content} = req.body;
+
+    console.log(`Backend : Mise a jour de la page avec l id : ${id}`);
+    console.log("Nouveau contenu recu:", JSON.stringify(content, null, 2));
+    
+    const page = await Page.findByPk(id);    
+    if (!page) {
+      console.log("backend: page non trouvé");
+      return res.status(404).json({massage: "Page non trouvé"});
+    }
+
+    //  if (typeof content === "string") {
+    //    page.content = content;
+    //  } else {
+    //    page.content = JSON.stringify(content);
+    //  }
+     const newContent = typeof content === "string" ? content : JSON.stringify(content);
+     await page.update({ content: newContent });
+
+    //await page.save();
+    await page.update(newContent);
+
+    console.log("backend: page mis a jour avec succes");
+    return res.json({ message: "Page mise a jour avec succes", page});
+  } catch (error) {
+    console.error("backend : erreur lors de la mis a jour de la page", error);
+    return res.status(500).json({ message: "erreur serveur", error});
   }
 };
 
