@@ -14,7 +14,8 @@ const { connectDB } = require('./Db/db');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/userRoute');
-var pagesRouter = require('./routes/pageRoute')
+var pagesRouter = require('./routes/pageRoute');
+var authRouter = require('./routes/authRoute');
 var app = express();
 
 
@@ -38,6 +39,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/pages', pagesRouter);
+app.use('/auth', authRouter)
 
 // Middleware 
 app.use((req, res, next) => {

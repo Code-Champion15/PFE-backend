@@ -1,12 +1,26 @@
 const Page = require('../Models/pageModel');
+const Modification = require('../Models/modifiacationModel');
+
 
 exports.createPage = async (req, res) => {
   try {
     const { name, content, parentId, route } = req.body;
+    const userName = req.user ? req.user.username : "Inconnu";
+
     const newPage = await Page.create({ name, content, parentId, route });
-    res.status(201).json(newPage);
+
+    await Modification.create({
+      operationType: "creation",
+      userName,
+      pageId: newPage.id,
+      pageName: newPage.name,
+      oldContent: null,
+      newContent: newPage.content,
+
+    });
+    res.status(201).json({ message : "Page crée avec succes", page: newPage});
   } catch (error) {
-    res.status(500).json({ message: 'Erreur lors de la création de la page', error });
+    res.status(500).json({ message: 'Erreur lors de la création de la page', error: error.massage });
   }
 };
 
@@ -18,19 +32,6 @@ exports.getPages = async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la récupération des pages', error });
   }
 };
-
-// exports.getPageById = async (req, res) => {
-//   try {
-//     const page = await Page.findByPk(req.params.id);
-//     if (page) {
-//       res.status(200).json(page);
-//     } else {
-//       res.status(404).json({ message: 'Page non trouvée' });
-//     }
-//   } catch (error) {
-//     res.status(500).json({ message: 'Erreur lors de la récupération de la page', error });
-//   }
-// };
 
 exports.getPageById = async (req, res) => {
   try{
@@ -166,6 +167,7 @@ exports.updatePageContent = async (req, res) => {
   try{
     const {id} = req.params;
     const {content} = req.body;
+    const userName = req.user ? req.user.username : "Inconnu";
 
     console.log(`Backend : Mise a jour de la page avec l id : ${id}`);
     console.log("Nouveau contenu recu:", JSON.stringify(content, null, 2));
@@ -175,23 +177,39 @@ exports.updatePageContent = async (req, res) => {
       console.log("backend: page non trouvé");
       return res.status(404).json({massage: "Page non trouvé"});
     }
-
-    //  if (typeof content === "string") {
-    //    page.content = content;
-    //  } else {
-    //    page.content = JSON.stringify(content);
-    //  }
-     const newContent = typeof content === "string" ? content : JSON.stringify(content);
-     await page.update({ content: newContent });
+    const oldContent = page.content;
+    const newContent = typeof content === "string" ? content : JSON.stringify(content);
+    await page.update({ content: newContent });
 
     //await page.save();
     await page.update(newContent);
+
+    await Modification.create({
+      operationType: "modification",
+      userName,
+      pageId: id,      
+      pageName: page.name,
+      oldContent,
+      newContent,
+    });
 
     console.log("backend: page mis a jour avec succes");
     return res.json({ message: "Page mise a jour avec succes", page});
   } catch (error) {
     console.error("backend : erreur lors de la mis a jour de la page", error);
-    return res.status(500).json({ message: "erreur serveur", error});
+    return res.status(500).json({ message: "erreur serveur", error: error.message});
+  }
+};
+
+exports.getModificationHistory = async (req, res) => {
+  try{
+    const history = await Modification.findAll({
+      order: [["createdAt", "DESC"]],
+    });
+    return res.json(history);
+  } catch (error) {
+    console.error("Backend : erreur lors de la recuperation de l historique", error);
+    return res.status(500).json({ massage: "Erreur serveur", error: error.message});
   }
 };
 
