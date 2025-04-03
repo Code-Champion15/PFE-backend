@@ -3,7 +3,7 @@ const router = express.Router();
 const pageController = require('../Controllers/pageController');
 const { verifyToken } = require ("../middleware/authMiddleware");
 
-router.post('/create', verifyToken, pageController.createPage);
+router.post('/create',verifyToken, pageController.createPage);
 
 router.get('/', pageController.getPages);
 router.get('/withchildren', pageController.getAllPagesWithChildren);
@@ -13,7 +13,6 @@ router.get('/:id', pageController.getPageById);
 router.get('/byroute/:route', pageController.getPageByRoute);
 router.get('/content/:id', pageController.getContentById);
 router.get('/contentbyroute/:route',pageController.getContentByRoute);
-
 
 
 router.put('/:id', pageController.updatePage);

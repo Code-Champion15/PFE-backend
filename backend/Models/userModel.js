@@ -22,9 +22,16 @@ const User = sequelize.define('User', {
     },
      role: {
         type: DataTypes.ENUM('client', 'admin', 'super-admin'),
-        defaultValue: 'client',  
+        defaultValue: 'admin',  
         allowNull: false,  
     },
+    isVerified: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
+    failedAttempts: { 
+        type: DataTypes.INTEGER, 
+        default: 0 },
 }, {
     freezeTableName: true,
 });
