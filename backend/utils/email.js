@@ -28,4 +28,30 @@ const sendVerificationEmail = (email, token) => {
   return transporter.sendMail(mailOptions);
 };
 
-module.exports = { sendVerificationEmail };
+const sendResetPasswordEmail = async (email, token) => {
+  const transporter = nodemailer.createTransport({
+    service: "Gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+    tls: {
+      rejectUnauthorized: false // Désactive la vérification SSL (uniquement en développement)
+    }
+  });
+
+  const resetUrl = `${process.env.BASE_FRONT_URL}/login/reset-password?token=${token}`;
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Réinitialisation de votre mot de passe",
+    text: `Cliquez sur ce lien pour réinitialiser votre mot de passe : ${resetUrl}`,
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
+
+module.exports = { sendVerificationEmail, sendResetPasswordEmail };
+
