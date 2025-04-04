@@ -5,11 +5,11 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER,   // Votre adresse Gmail
-    pass: process.env.EMAIL_PASS,   // Votre mot de passe d'application
+    user: process.env.EMAIL_USER,   
+    pass: process.env.EMAIL_PASS,   
   },
   tls: {
-    rejectUnauthorized: false // Désactive la vérification SSL (uniquement en développement)
+    rejectUnauthorized: false 
   }
 });
 
@@ -36,7 +36,7 @@ const sendResetPasswordEmail = async (email, token) => {
       pass: process.env.EMAIL_PASS,
     },
     tls: {
-      rejectUnauthorized: false // Désactive la vérification SSL (uniquement en développement)
+      rejectUnauthorized: false 
     }
   });
 
