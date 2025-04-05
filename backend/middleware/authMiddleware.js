@@ -7,7 +7,7 @@ exports.verifyToken = (req, res, next) => {
     const token = authHeader.split(" ")[1];
     jwt.verify(token, JWT_SECRET, (err, decoded) => {
       if (err) return res.status(401).json({ message: "Token invalide" });
-      req.user = decoded; // On attache le payload du token à req.user
+      req.user = decoded;
       next();
     });
   } else {

@@ -1,4 +1,3 @@
-// utils/email.js
 const nodemailer = require('nodemailer');
 
 // Créez un transporteur Nodemailer avec Gmail

@@ -6,15 +6,14 @@ const {sendVerificationEmail} = require ("../utils/email");
 const JWT_SECRET = process.env.JWT_SECRET;
 require("dotenv").config();
 
-const loginAttempts = {}; // Stocke les tentatives par email
-const MAX_ATTEMPTS = 3; // Nombre max de tentatives
-const LOCK_TIME = 5 * 60 * 1000; // 5 minutes de blocage
+const loginAttempts = {}; 
+const MAX_ATTEMPTS = 3; 
+const LOCK_TIME = 5 * 60 * 1000; 
 
 exports.register = async (req, res) => {
   try {
-    const { username, email, password, role } = req.body;
+    const { username, email, password, role, superadminKey } = req.body;
 
-    // Vérification si l'email existe déjà
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ message: "Cet email est déjà utilisé" });
@@ -22,18 +21,28 @@ exports.register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    let isApproved = false;
+
+    if (role === "super-admin") {
+      if (superadminKey !== process.env.SUPER_ADMIN_SECRET) {
+        return res.status(403).json({ message: "Clé super-admin invalide" });
+      }
+      isApproved = true;
+    }
+
     const user = await User.create({
       username,
       email,
       password: hashedPassword,
       role,
-      isVerified: false, 
+      isVerified: false,
+      isApproved,
     });
 
-    // Création d'un token JWT pour la vérification de l'email
-    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {expiresIn: "1h",});
+    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
+      expiresIn: "1h",
+    });
 
-    // Envoi de l'email de vérification
     await sendVerificationEmail(user.email, token);
 
     res.status(201).json({
@@ -43,12 +52,14 @@ exports.register = async (req, res) => {
         username: user.username,
         email: user.email,
         role: user.role,
+        isApproved: user.isApproved,
       },
     });
   } catch (error) {
     res.status(500).json({ message: "Erreur lors de l'inscription", error: error.message });
   }
 };
+
 
 exports.verifyEmail = async (req, res) => {
   const { token } = req.params;
@@ -65,6 +76,10 @@ exports.verifyEmail = async (req, res) => {
     }
 
     user.isVerified = true;
+
+    if (user.role === 'super-admin') {
+      user.isApproved = true;
+    }
     await user.save();
 
     res.status(200).json({ message: "Email vérifié avec succès" });
@@ -94,7 +109,17 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "Identifiants invalides" });
     }
 
-    // Réinitialiser les tentatives après une connexion réussie
+    // Vérification de l'email
+    if (!user.isVerified) {
+      return res.status(403).json({ message: "Veuillez vérifier votre adresse email avant de vous connecter." });
+    }
+
+    // Vérification de l'approbation (sauf super-admin)
+    if (user.role !== 'super-admin' && !user.isApproved) {
+      return res.status(403).json({ message: "Votre compte est en attente de validation par un super-admin." });
+    }
+
+    // Réinitialisation des tentatives après succès
     user.failedAttempts = 0;
     await user.save();
 
@@ -110,6 +135,8 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: "Erreur lors de la connexion", error: error.message });
   }
 };
+
+
 
 const { sendResetPasswordEmail } = require("../utils/email");
 
@@ -150,4 +177,39 @@ exports.resetPassword = async (req, res) => {
     res.status(400).json({ message: "Token invalide ou expiré", error: error.message });
   }
 };
+
+exports.approveAdmin = async (req, res) => {
+  try {
+    const userId = req.params.Id;
+    const user = await User.findByPk(userId);
+
+    if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
+
+    user.isApproved = true;
+    await user.save();
+
+    res.status(200).json({ message: "Compte approuvé avec succès." });
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+exports.getPendingAdmins = async (req, res) => {
+  try {
+    const pendingUsers = await User.findAll({
+      where: {
+        isApproved: false,
+        isVerified: true, 
+      },
+      attributes: ['id', 'username', 'email', 'createdAt'],
+    });
+
+    res.status(200).json(pendingUsers);
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+
+
 
