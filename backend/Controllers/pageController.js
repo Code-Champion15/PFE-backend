@@ -213,3 +213,36 @@ exports.getModificationHistory = async (req, res) => {
   }
 };
 
+exports.getPageList = async (req, res) => {
+  try {
+    const pages = await Page.findAll({
+      attributes: ['route', 'name']
+    });
+    res.status(200).json(pages);
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la récupération des pages', error });
+  }
+};
+
+exports.getHourlyStatsByPage = async (req, res) => {
+  try {
+    const { pageRoute } = req.query;
+
+    const stats = await PageVisit.findAll({
+      where: { pageRoute },
+      attributes: [
+        [sequelizeInstance.fn('HOUR', sequelizeInstance.col('visitTime')), 'hour'],
+        [sequelizeInstance.fn('COUNT', '*'), 'visits'],
+        [sequelizeInstance.fn('AVG', sequelizeInstance.col('durationSeconds')), 'avgDuration']
+      ],
+      group: ['hour'],
+      order: [[sequelizeInstance.fn('HOUR', sequelizeInstance.col('visitTime')), 'ASC']]
+    });
+
+    res.status(200).json(stats);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des stats horaires:", error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+

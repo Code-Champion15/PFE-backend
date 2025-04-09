@@ -6,6 +6,7 @@ const { verifyToken } = require ("../middleware/authMiddleware");
 router.post('/create',verifyToken, pageController.createPage);
 
 router.get('/', pageController.getPages);
+router.get('/list', pageController.getPageList); 
 router.get('/withchildren', pageController.getAllPagesWithChildren);
 router.get("/history", verifyToken, pageController.getModificationHistory);
 
