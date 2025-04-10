@@ -33,25 +33,62 @@ exports.getPages = async (req, res) => {
   }
 };
 
-exports.getPageById = async (req, res) => {
-  try{
-    const {id} = req.params;
-    console.log(`backend: Recuperation de la page avec ID: ${id}`);
-    const page = await Page.findByPk(id);
-    if (!page) {
-      console.log("backend: page non trouvé");
-      return res.status(404).json({message: "Page non trouvée"});
-    }
-    console.log("Backend : Page trouvée:", page);
+ exports.getPageById = async (req, res) => {
+   try{
+     const {id} = req.params;
+     console.log(`backend: Recuperation de la page avec ID: ${id}`);
+     const page = await Page.findByPk(id);
+     if (!page) {
+       console.log("backend: page non trouvé");
+       return res.status(404).json({message: "Page non trouvée"});
+     }
+     console.log("Backend : Page trouvée:", page);
 
-    const content = typeof page.content === "string" ? JSON.parse(page.content) : page.content;
-    return res.json({ ...page.toJSON(), content });
+     const content = typeof page.content === "string" ? JSON.parse(page.content) : page.content;
+     return res.json({ ...page.toJSON(), content });
 
-  } catch (error) {
-    console.error("Backend erreur lors de la recuperation de la page:",error);
-    return res.status(500).json({message: "Erreur serveur", error});
-  }
-};
+   } catch (error) {
+     console.error("Backend erreur lors de la recuperation de la page:",error);
+     return res.status(500).json({message: "Erreur serveur", error});
+   }
+ };
+
+// exports.getPageById = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     console.log(`backend: Récupération de la page avec ID: ${id}`);
+
+//     const page = await Page.findByPk(id);
+//     if (!page) {
+//       console.log("backend: Page non trouvée");
+//       return res.status(404).json({ message: "Page non trouvée" });
+//     }
+//     console.log("Backend : Page trouvée:", page);
+
+//     // Vérification et gestion du contenu vide ou null
+//     let content = page.content;
+//     if (content) { // Si content n'est pas null ou vide
+//       if (typeof content === "string") {
+//         try {
+//           content = JSON.parse(content); // Essayer de parser le contenu si c'est une chaîne
+//         } catch (parseError) {
+//           console.error("Erreur de parsing JSON pour le contenu de la page:", parseError);
+//           return res.status(400).json({ message: "Le contenu de la page est mal formé" });
+//         }
+//       }
+//     } else {
+//       console.log("Backend : Le contenu est vide ou null");
+//       content = ""; // Assurez-vous que content est un objet vide ou une structure par défaut
+//     }
+
+//     return res.json({ ...page.toJSON(), content });
+//   } catch (error) {
+//     console.error("Backend erreur lors de la récupération de la page:", error);
+//     return res.status(500).json({ message: "Erreur serveur", error: error.message });
+//   }
+// };
+
+
 
 exports.updatePage = async (req, res) => {
   try {
@@ -178,11 +215,15 @@ exports.updatePageContent = async (req, res) => {
       return res.status(404).json({massage: "Page non trouvé"});
     }
     const oldContent = page.content;
-    const newContent = typeof content === "string" ? content : JSON.stringify(content);
-    await page.update({ content: newContent });
+    const newContent = typeof content === "string" ? content : JSON.stringify(content, null, 0);
+    //const newContent = JSON.stringify(content);
+   // const newContent = JSON.stringify(content, null, 0);
 
+    await page.update({ content:newContent });
+
+    
+    //await page.update({newContent});
     //await page.save();
-    await page.update(newContent);
 
     await Modification.create({
       operationType: "modification",
@@ -224,25 +265,4 @@ exports.getPageList = async (req, res) => {
   }
 };
 
-exports.getHourlyStatsByPage = async (req, res) => {
-  try {
-    const { pageRoute } = req.query;
-
-    const stats = await PageVisit.findAll({
-      where: { pageRoute },
-      attributes: [
-        [sequelizeInstance.fn('HOUR', sequelizeInstance.col('visitTime')), 'hour'],
-        [sequelizeInstance.fn('COUNT', '*'), 'visits'],
-        [sequelizeInstance.fn('AVG', sequelizeInstance.col('durationSeconds')), 'avgDuration']
-      ],
-      group: ['hour'],
-      order: [[sequelizeInstance.fn('HOUR', sequelizeInstance.col('visitTime')), 'ASC']]
-    });
-
-    res.status(200).json(stats);
-  } catch (error) {
-    console.error("Erreur lors de la récupération des stats horaires:", error);
-    res.status(500).json({ error: "Erreur serveur" });
-  }
-};
 
