@@ -21,7 +21,7 @@ const PageVisit = sequelize.define("PageVisit", {
     allowNull: false 
   },
   durationSeconds: { 
-    type: DataTypes.INTEGER, 
+    type: DataTypes.INTEGER,
     defaultValue: 0 
   },
   userId: { 

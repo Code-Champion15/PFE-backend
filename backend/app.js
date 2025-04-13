@@ -17,6 +17,7 @@ var usersRouter = require('./routes/userRoute');
 var pagesRouter = require('./routes/pageRoute');
 var authRouter = require('./routes/authRoute');
 var statisticsRoutes = require("./routes/statisticsRoutes");
+const bodyParser = require('body-parser');
 
 var app = express();
 
@@ -56,6 +57,8 @@ app.use((err, req, res, next) => {
         message: err.message || 'Erreur interne du serveur',
     });
 });
+
+app.use(bodyParser.json());
 
 // Création et lancement du serveur
 const PORT = process.env.PORT || 5000;

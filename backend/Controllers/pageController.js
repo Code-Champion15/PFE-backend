@@ -1,6 +1,6 @@
 const Page = require('../Models/pageModel');
 const Modification = require('../Models/modifiacationModel');
-
+const { default: axios } = require('axios');
 
 exports.createPage = async (req, res) => {
   try {
@@ -20,7 +20,31 @@ exports.createPage = async (req, res) => {
     });
     res.status(201).json({ message : "Page crée avec succes", page: newPage});
   } catch (error) {
-    res.status(500).json({ message: 'Erreur lors de la création de la page', error: error.massage });
+    res.status(500).json({ message: 'Erreur lors de la création de la page', error: error.message });
+  }
+};
+
+exports.generatePageFromPrompt = async (req, res) => {
+  const { prompt } = req.body;
+  console.log("Backend - Prompt reçu :", prompt);
+
+  if (!prompt) {
+    return res.status(400).json({ message: "Prompt manquant" });
+  }
+
+  try {
+    const response = await axios.post("https://sultan-api-zrhp.onrender.com/generate", {
+      prompt,
+    }, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    console.log("Backend - Réponse IA :", JSON.stringify(response.data, null, 2));
+    res.status(200).json({ content: response.data });
+  } catch (error) {
+    console.error("Backend - Erreur API IA :", error.message);
+    res.status(500).json({ message: "Erreur lors de l’appel à l’IA", error: error.message });
   }
 };
 
@@ -52,43 +76,6 @@ exports.getPages = async (req, res) => {
      return res.status(500).json({message: "Erreur serveur", error});
    }
  };
-
-// exports.getPageById = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     console.log(`backend: Récupération de la page avec ID: ${id}`);
-
-//     const page = await Page.findByPk(id);
-//     if (!page) {
-//       console.log("backend: Page non trouvée");
-//       return res.status(404).json({ message: "Page non trouvée" });
-//     }
-//     console.log("Backend : Page trouvée:", page);
-
-//     // Vérification et gestion du contenu vide ou null
-//     let content = page.content;
-//     if (content) { // Si content n'est pas null ou vide
-//       if (typeof content === "string") {
-//         try {
-//           content = JSON.parse(content); // Essayer de parser le contenu si c'est une chaîne
-//         } catch (parseError) {
-//           console.error("Erreur de parsing JSON pour le contenu de la page:", parseError);
-//           return res.status(400).json({ message: "Le contenu de la page est mal formé" });
-//         }
-//       }
-//     } else {
-//       console.log("Backend : Le contenu est vide ou null");
-//       content = ""; // Assurez-vous que content est un objet vide ou une structure par défaut
-//     }
-
-//     return res.json({ ...page.toJSON(), content });
-//   } catch (error) {
-//     console.error("Backend erreur lors de la récupération de la page:", error);
-//     return res.status(500).json({ message: "Erreur serveur", error: error.message });
-//   }
-// };
-
-
 
 exports.updatePage = async (req, res) => {
   try {
@@ -216,14 +203,8 @@ exports.updatePageContent = async (req, res) => {
     }
     const oldContent = page.content;
     const newContent = typeof content === "string" ? content : JSON.stringify(content, null, 0);
-    //const newContent = JSON.stringify(content);
-   // const newContent = JSON.stringify(content, null, 0);
-
-    await page.update({ content:newContent });
-
     
-    //await page.update({newContent});
-    //await page.save();
+    await page.update({ content:newContent });
 
     await Modification.create({
       operationType: "modification",
@@ -264,5 +245,40 @@ exports.getPageList = async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la récupération des pages', error });
   }
 };
+
+// exports.getPageById = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     console.log(`backend: Récupération de la page avec ID: ${id}`);
+
+//     const page = await Page.findByPk(id);
+//     if (!page) {
+//       console.log("backend: Page non trouvée");
+//       return res.status(404).json({ message: "Page non trouvée" });
+//     }
+//     console.log("Backend : Page trouvée:", page);
+
+//     // Vérification et gestion du contenu vide ou null
+//     let content = page.content;
+//     if (content) { // Si content n'est pas null ou vide
+//       if (typeof content === "string") {
+//         try {
+//           content = JSON.parse(content); // Essayer de parser le contenu si c'est une chaîne
+//         } catch (parseError) {
+//           console.error("Erreur de parsing JSON pour le contenu de la page:", parseError);
+//           return res.status(400).json({ message: "Le contenu de la page est mal formé" });
+//         }
+//       }
+//     } else {
+//       console.log("Backend : Le contenu est vide ou null");
+//       content = ""; // Assurez-vous que content est un objet vide ou une structure par défaut
+//     }
+
+//     return res.json({ ...page.toJSON(), content });
+//   } catch (error) {
+//     console.error("Backend erreur lors de la récupération de la page:", error);
+//     return res.status(500).json({ message: "Erreur serveur", error: error.message });
+//   }
+// };
 
 

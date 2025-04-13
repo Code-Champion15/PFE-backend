@@ -4,6 +4,7 @@ const pageController = require('../Controllers/pageController');
 const { verifyToken } = require ("../middleware/authMiddleware");
 
 router.post('/create',verifyToken, pageController.createPage);
+router.post("/generate" ,verifyToken, pageController.generatePageFromPrompt);
 
 router.get('/', pageController.getPages);
 
