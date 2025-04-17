@@ -17,6 +17,7 @@ var usersRouter = require('./routes/userRoute');
 var pagesRouter = require('./routes/pageRoute');
 var authRouter = require('./routes/authRoute');
 var statisticsRoutes = require("./routes/statisticsRoutes");
+var aiRouter = require('./routes/aiRoute');
 const bodyParser = require('body-parser');
 
 var app = express();
@@ -44,6 +45,7 @@ app.use('/users', usersRouter);
 app.use('/pages', pagesRouter);
 app.use('/auth', authRouter)
 app.use('/statistics', statisticsRoutes);
+app.use('/ai', aiRouter);
 
 // Middleware 
 app.use((req, res, next) => {
