@@ -4,14 +4,14 @@ const pageController = require('../Controllers/pageController');
 const { verifyToken } = require ("../middleware/authMiddleware");
 
 router.post('/create',verifyToken, pageController.createPage);
-router.post("/generate" ,verifyToken, pageController.generatePageFromPrompt);
+//router.post("/generate" ,verifyToken, pageController.generatePageFromPrompt);
 
 router.get('/', pageController.getPages);
 
 
 router.get('/list', pageController.getPageList); 
 router.get('/withchildren', pageController.getAllPagesWithChildren);
-router.get("/history", verifyToken, pageController.getModificationHistory);
+//router.get("/history", verifyToken, pageController.getModificationHistory);
 router.get('/:id', pageController.getPageById);
 router.get('/byroute/:route', pageController.getPageByRoute);
 router.get('/content/:id', pageController.getContentById);

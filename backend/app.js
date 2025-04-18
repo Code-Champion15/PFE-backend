@@ -15,6 +15,8 @@ const { connectDB } = require('./Db/db');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/userRoute');
 var pagesRouter = require('./routes/pageRoute');
+var modificationRouter = require('./routes/modificationRoute');
+
 var authRouter = require('./routes/authRoute');
 var statisticsRoutes = require("./routes/statisticsRoutes");
 var aiRouter = require('./routes/aiRoute');
@@ -46,6 +48,10 @@ app.use('/pages', pagesRouter);
 app.use('/auth', authRouter)
 app.use('/statistics', statisticsRoutes);
 app.use('/ai', aiRouter);
+app.use('/modification', modificationRouter);
+
+
+
 
 // Middleware 
 app.use((req, res, next) => {

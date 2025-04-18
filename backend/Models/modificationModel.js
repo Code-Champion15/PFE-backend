@@ -22,6 +22,12 @@ const Modification = sequelize.define("Modification", {
     type: DataTypes.STRING,
     allowNull: false, 
   },
+  userId: { 
+    type: DataTypes.INTEGER, 
+    allowNull: false, 
+    references: { model: User, key: "id", }, 
+    onDelete: "CASCADE", 
+  },
   userName: {
     type: DataTypes.STRING,
     allowNull: false, 
@@ -46,5 +52,6 @@ const Modification = sequelize.define("Modification", {
 });
 
 Modification.belongsTo(Page, { foreignKey: "pageId" });
+Modification.belongsTo(User, { foreignKey: "userId" });
 
 module.exports = Modification;

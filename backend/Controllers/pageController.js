@@ -1,16 +1,18 @@
 const Page = require('../Models/pageModel');
-const Modification = require('../Models/modifiacationModel');
+const Modification = require('../Models/modificationModel');
 const { default: axios } = require('axios');
 
 exports.createPage = async (req, res) => {
   try {
     const { name, content, parentId, route } = req.body;
+    const userId = req.user?.id || null;
     const userName = req.user ? req.user.username : "Inconnu";
 
     const newPage = await Page.create({ name, content, parentId, route });
 
     await Modification.create({
       operationType: "creation",
+      userId,
       userName,
       pageId: newPage.id,
       pageName: newPage.name,
@@ -24,29 +26,29 @@ exports.createPage = async (req, res) => {
   }
 };
 
-exports.generatePageFromPrompt = async (req, res) => {
-  const { prompt } = req.body;
-  console.log("Backend - Prompt reçu :", prompt);
+// exports.generatePageFromPrompt = async (req, res) => {
+//   const { prompt } = req.body;
+//   console.log("Backend - Prompt reçu :", prompt);
 
-  if (!prompt) {
-    return res.status(400).json({ message: "Prompt manquant" });
-  }
+//   if (!prompt) {
+//     return res.status(400).json({ message: "Prompt manquant" });
+//   }
 
-  try {
-    const response = await axios.post("https://sultan-api-zrhp.onrender.com/generate", {
-      prompt,
-    }, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    console.log("Backend - Réponse IA :", JSON.stringify(response.data, null, 2));
-    res.status(200).json({ content: response.data });
-  } catch (error) {
-    console.error("Backend - Erreur API IA :", error.message);
-    res.status(500).json({ message: "Erreur lors de l’appel à l’IA", error: error.message });
-  }
-};
+//   try {
+//     const response = await axios.post("https://sultan-api-zrhp.onrender.com/generate", {
+//       prompt,
+//     }, {
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//     });
+//     console.log("Backend - Réponse IA :", JSON.stringify(response.data, null, 2));
+//     res.status(200).json({ content: response.data });
+//   } catch (error) {
+//     console.error("Backend - Erreur API IA :", error.message);
+//     res.status(500).json({ message: "Erreur lors de l’appel à l’IA", error: error.message });
+//   }
+// };
 
 exports.getPages = async (req, res) => {
   try {
@@ -191,6 +193,7 @@ exports.updatePageContent = async (req, res) => {
   try{
     const {id} = req.params;
     const {content} = req.body;
+    const userId = req.user?.id || null;
     const userName = req.user ? req.user.username : "Inconnu";
 
     console.log(`Backend : Mise a jour de la page avec l id : ${id}`);
@@ -208,8 +211,9 @@ exports.updatePageContent = async (req, res) => {
 
     await Modification.create({
       operationType: "modification",
+      userId,
       userName,
-      pageId: id,      
+      pageId: page.id,
       pageName: page.name,
       oldContent,
       newContent,
@@ -223,17 +227,17 @@ exports.updatePageContent = async (req, res) => {
   }
 };
 
-exports.getModificationHistory = async (req, res) => {
-  try{
-    const history = await Modification.findAll({
-      order: [["createdAt", "DESC"]],
-    });
-    return res.json(history);
-  } catch (error) {
-    console.error("Backend : erreur lors de la recuperation de l historique", error);
-    return res.status(500).json({ massage: "Erreur serveur", error: error.message});
-  }
-};
+// exports.getModificationHistory = async (req, res) => {
+//   try{
+//     const history = await Modification.findAll({
+//       order: [["createdAt", "DESC"]],
+//     });
+//     return res.json(history);
+//   } catch (error) {
+//     console.error("Backend : erreur lors de la recuperation de l historique", error);
+//     return res.status(500).json({ massage: "Erreur serveur", error: error.message});
+//   }
+// };
 
 exports.getPageList = async (req, res) => {
   try {
