@@ -17,7 +17,7 @@ router.get('/byroute/:route', pageController.getPageByRoute);
 router.get('/content/:id', pageController.getContentById);
 router.get('/contentbyroute/:route',pageController.getContentByRoute);
 //versionning
-router.get('/:id/restore',verifyToken, pageVersionController.getVersions);
+router.get('/:id/versions',verifyToken, pageVersionController.getVersions);
 
 
 router.put('/:id', pageController.updatePage);
