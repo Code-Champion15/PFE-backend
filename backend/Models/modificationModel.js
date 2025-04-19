@@ -11,12 +11,7 @@ const Modification = sequelize.define("Modification", {
   },
   pageId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: Page,
-      key: "id",
-    },
-    onDelete: "CASCADE",
+    allowNull: true,
   },
   operationType: {
     type: DataTypes.STRING,
@@ -25,8 +20,6 @@ const Modification = sequelize.define("Modification", {
   userId: { 
     type: DataTypes.INTEGER, 
     allowNull: false, 
-    references: { model: User, key: "id", }, 
-    onDelete: "CASCADE", 
   },
   userName: {
     type: DataTypes.STRING,
@@ -42,7 +35,7 @@ const Modification = sequelize.define("Modification", {
   },
   newContent: {
     type: DataTypes.TEXT("long"),
-    allowNull: false,
+    allowNull: true,
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -51,7 +44,5 @@ const Modification = sequelize.define("Modification", {
   },
 });
 
-Modification.belongsTo(Page, { foreignKey: "pageId" });
-Modification.belongsTo(User, { foreignKey: "userId" });
 
 module.exports = Modification;

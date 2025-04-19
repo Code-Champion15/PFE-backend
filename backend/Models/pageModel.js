@@ -23,20 +23,20 @@ const Page = sequelize.define("Page", {
   parentId: {
     type: DataTypes.INTEGER,
     allowNull: true,
-    references: {
-      model: "Pages", 
-      key: "id",
-    },
-    onDelete: "CASCADE", 
+      // references: {
+      //  model: "Pages", 
+      //  key: "id",
+      // },
+    onDelete: "RESTRICT",
+    onUpdate: "CASCADE" 
   },
+  isDeleted: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+    allowNull: false
+
+  }
 });
 
-Page.hasMany(Page, { as: "Children", foreignKey: "parentId" });
-Page.belongsTo(Page, { as: "Parent", foreignKey: "parentId" });
-
-const PageVisit = require("./pageVisitModel");
-
-Page.hasMany(PageVisit, { foreignKey: "pageRoute", sourceKey: "route" });
-PageVisit.belongsTo(Page, { foreignKey: "pageRoute", targetKey: "route" });
 
 module.exports = Page;
