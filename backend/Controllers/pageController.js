@@ -112,8 +112,6 @@ exports.deletePage = async (req, res) => {
       oldContent,
       newContent: null
     })
-
-    // Enregistrement de la suppression dans l'historique
     
     console.log("Suppression enregistrée dans Modification:", Modification);
 

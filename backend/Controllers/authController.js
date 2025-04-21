@@ -23,12 +23,12 @@ exports.register = async (req, res) => {
 
     let isApproved = false;
 
-    if (role === "super-admin") {
-      if (superadminKey !== process.env.SUPER_ADMIN_SECRET) {
-        return res.status(403).json({ message: "Clé super-admin invalide" });
-      }
-      isApproved = true;
-    }
+    // if (role === "super-admin") {
+    //   if (superadminKey !== process.env.SUPER_ADMIN_SECRET) {
+    //     return res.status(403).json({ message: "Clé super-admin invalide" });
+    //   }
+    //   isApproved = true;
+    // }
 
     const user = await User.create({
       username,
@@ -39,7 +39,7 @@ exports.register = async (req, res) => {
       isApproved,
     });
 
-    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
+    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, {
       expiresIn: "1h",
     });
 
@@ -77,9 +77,9 @@ exports.verifyEmail = async (req, res) => {
 
     user.isVerified = true;
 
-    if (user.role === 'super-admin') {
-      user.isApproved = true;
-    }
+    //  if (user.role === 'super-admin') {
+    //    user.isApproved = true;
+    //  }
     await user.save();
 
     res.status(200).json({ message: "Email vérifié avec succès" });
@@ -178,37 +178,8 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
-exports.approveAdmin = async (req, res) => {
-  try {
-    const userId = req.params.Id;
-    const user = await User.findByPk(userId);
 
-    if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
 
-    user.isApproved = true;
-    await user.save();
-
-    res.status(200).json({ message: "Compte approuvé avec succès." });
-  } catch (err) {
-    res.status(500).json({ message: "Erreur serveur" });
-  }
-};
-
-exports.getPendingAdmins = async (req, res) => {
-  try {
-    const pendingUsers = await User.findAll({
-      where: {
-        isApproved: false,
-        isVerified: true, 
-      },
-      attributes: ['id', 'username', 'email', 'createdAt'],
-    });
-
-    res.status(200).json(pendingUsers);
-  } catch (err) {
-    res.status(500).json({ message: "Erreur serveur" });
-  }
-};
 
 
 
