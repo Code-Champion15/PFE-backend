@@ -16,6 +16,7 @@ exports.restoreVersion = async (req, res) => {
   try {
     const { id, versionId } = req.params;
     const { id:userId, username:userName } = req.user;
+    
     const version = await PageVersion.findByPk(versionId);
     if (!version || version.pageId !== +id)
       return res.status(404).json({ message: "Version introuvable" });

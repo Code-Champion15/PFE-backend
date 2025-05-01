@@ -20,6 +20,9 @@ var adminRoutes = require("./routes/adminRoutes");
 var authRouter = require('./routes/authRoute');
 var statisticsRoutes = require("./routes/statisticsRoutes");
 var aiRouter = require('./routes/aiRoute');
+var fileRoutes = require("./routes/fileRoutes");
+var operationRoutes = require('./routes/operationRoutes');
+var visitRouter = require('./routes/visitRoutes');
 const bodyParser = require('body-parser');
 
 var app = express();
@@ -51,7 +54,9 @@ app.use('/ai', aiRouter);
 app.use('/modification', modificationRouter);
 app.use('/profils',adminRoutes);
 
-
+app.use('/api/files', fileRoutes);
+app.use('/operations', operationRoutes);
+app.use('/visites',visitRouter);
 
 
 // Middleware 
