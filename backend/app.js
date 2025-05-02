@@ -23,10 +23,9 @@ var aiRouter = require('./routes/aiRoute');
 var fileRoutes = require("./routes/fileRoutes");
 var operationRoutes = require('./routes/operationRoutes');
 var visitRouter = require('./routes/visitRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 const bodyParser = require('body-parser');
-
 var app = express();
-
 
 connectDB();
 
@@ -57,7 +56,7 @@ app.use('/profils',adminRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/operations', operationRoutes);
 app.use('/visites',visitRouter);
-
+app.use('/api', uploadRoutes);
 
 // Middleware 
 app.use((req, res, next) => {

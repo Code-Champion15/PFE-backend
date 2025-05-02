@@ -3,12 +3,16 @@ const path = require('path');
 const File = require('../Models/file');
 const { default: axios } = require('axios');
 const Operation = require('../Models/operationModel');
+const { getPagesPath } = require('../utils/projectPathHelper');
+const { updateRoutesFile } = require('../utils/routeUpdater');
 
-const pagesPath = path.join(__dirname, '../../frontend/PFE-frontend/src/pages');
+//const pagesPath = path.join(__dirname, '../../frontend/PFE-frontend/src/pages');
 
 //liste les noms des fichiers du dossier pages
 exports.listPages = (req, res) => {
-  fs.readdir(pagesPath, (err, files) => {
+  fs.readdir(getPagesPath() , (err, files) => {
+    console.log("Fichiers trouvés :", files);
+    console.log("Chemin résolu vers les pages :", getPagesPath());
     if (err) return res.status(500).json({ error: 'Erreur lecture dossier' });
     const jsFiles = files.filter(f => f.endsWith('.js'));
     res.json(jsFiles.map(f => f.replace('.js', '')));
@@ -17,7 +21,7 @@ exports.listPages = (req, res) => {
 
 //lit le code d'un ficher 
 exports.readPage = (req, res) => {
-  const filePath = path.join(pagesPath, `${req.params.pageName}.js`);
+  const filePath = path.join(getPagesPath(), `${req.params.pageName}.js`);
   if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Fichier non trouvé' });
 
   fs.readFile(filePath, 'utf8', (err, data) => {
@@ -27,7 +31,7 @@ exports.readPage = (req, res) => {
 };
 
 exports.updatePage = (req, res) => {
-  const filePath = path.join(pagesPath, `${req.params.pageName}.js`);
+  const filePath = path.join(getPagesPath(), `${req.params.pageName}.js`);
   const { content } = req.body;
 
   if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Fichier non trouvé' });
@@ -49,7 +53,7 @@ exports.savePageCode = async (req, res) => {
     return res.status(400).json({ error: 'Nom de la page ou code manquant.' });
   }
 
-  const filePath = path.join(pagesPath, `${pageName}.js`);
+  const filePath = path.join(getPagesPath(), `${pageName}.js`);
   
   fs.writeFile(filePath, code, 'utf8', async (err) => {
     if (err) {
@@ -106,13 +110,17 @@ exports.createFile = async (req, res) => {
   if (!pageName || !code) {
     return res.status(400).json({ error: 'pageName et code sont requis' });
   }
-  const pageDir = path.join(__dirname, '../../frontend/PFE-frontend/src/pages');
+  //const pageDir = path.join(__dirname, '../../frontend/PFE-frontend/src/pages');
+  const pageDir = getPagesPath();
   const filePath = path.join(pageDir, `${pageName}.js`);
   console.log("Chemin final du fichier :", filePath);
 
   try {
     fs.mkdirSync(pageDir, { recursive: true });
     fs.writeFileSync(filePath, code);
+
+    //l ajout de la route:
+    updateRoutesFile(pageName);
 
     await File.create({
       fileName: `${pageName}.js`,
@@ -137,7 +145,7 @@ exports.createFile = async (req, res) => {
 };
 
 exports.listFormattedPages = (req, res) => {
-  fs.readdir(pagesPath, (err, files) => {
+  fs.readdir(getPagesPath(), (err, files) => {
     if (err) {
       console.error("Erreur lecture dossier pages :", err);
       return res.status(500).json({ error: "Erreur lecture dossier." });
