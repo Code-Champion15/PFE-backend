@@ -4,6 +4,7 @@ const PageVersion = require("./pageVersionModel");
 const User = require("./userModel");
 const PageVisit = require("./pageVisitModel");
 const File = require("./file");
+const Projet = require('./projet');
 
 const { sequelize } = require("../Db/db");
 const FileVisit = require("./fileVisit");
@@ -36,5 +37,12 @@ FileVisit.belongsTo(User, {
     as: 'user',
 });
 
+User.hasMany(Projet, { foreignKey: 'userId' });
+Projet.belongsTo(User, { foreignKey: 'userId' });
 
-module.exports = { sequelize, Page, Modification, PageVersion, User, PageVisit, FileVisit };
+Projet.hasMany(File, { foreignKey: 'projectId' });
+File.belongsTo(Projet, { foreignKey: 'projectId' });
+
+
+
+module.exports = { sequelize, Page, Modification, PageVersion, User, PageVisit, FileVisit, Projet };

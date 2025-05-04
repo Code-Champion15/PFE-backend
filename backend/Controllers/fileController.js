@@ -5,6 +5,7 @@ const { default: axios } = require('axios');
 const Operation = require('../Models/operationModel');
 const { getPagesPath } = require('../utils/projectPathHelper');
 const { updateRoutesFile } = require('../utils/routeUpdater');
+const Project = require('../Models/projectModel');
 
 //const pagesPath = path.join(__dirname, '../../frontend/PFE-frontend/src/pages');
 
@@ -103,11 +104,11 @@ exports.generateCode = async (req, res) => {
 
 
 exports.createFile = async (req, res) => {
-  const { pageName, code } = req.body;
+  const { pageName, code, projectId } = req.body;
   const userId = req.user?.id || null;
   const userName = req.user?.username || "Inconnu";
 
-  if (!pageName || !code) {
+  if (!pageName || !code || !projectId) {
     return res.status(400).json({ error: 'pageName et code sont requis' });
   }
   //const pageDir = path.join(__dirname, '../../frontend/PFE-frontend/src/pages');
@@ -127,6 +128,7 @@ exports.createFile = async (req, res) => {
       route: `/pages/${pageName}`,  
       userId: userId,
       username: userName,
+      projectId: projectId,
 
     });
 

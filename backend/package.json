@@ -30,6 +30,7 @@
     "unzipper": "^0.12.3"
   },
   "devDependencies": {
+    
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1"
   }

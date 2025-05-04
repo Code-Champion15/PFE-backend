@@ -8,7 +8,6 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors'); 
 
-
 const http = require('http');
 const { connectDB } = require('./Db/db');
 
@@ -24,6 +23,7 @@ var fileRoutes = require("./routes/fileRoutes");
 var operationRoutes = require('./routes/operationRoutes');
 var visitRouter = require('./routes/visitRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+var projetRoutes = require('./routes/ProjetRoutes');
 const bodyParser = require('body-parser');
 var app = express();
 
@@ -57,6 +57,7 @@ app.use('/api/files', fileRoutes);
 app.use('/operations', operationRoutes);
 app.use('/visites',visitRouter);
 app.use('/api', uploadRoutes);
+app.use('/api/projets', projetRoutes);
 
 // Middleware 
 app.use((req, res, next) => {
