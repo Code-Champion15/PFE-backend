@@ -5,7 +5,7 @@ const { default: axios } = require('axios');
 const Operation = require('../Models/operationModel');
 const { getPagesPath } = require('../utils/projectPathHelper');
 const { updateRoutesFile } = require('../utils/routeUpdater');
-const Project = require('../Models/projectModel');
+const Projet = require('../Models/projet');
 
 //const pagesPath = path.join(__dirname, '../../frontend/PFE-frontend/src/pages');
 

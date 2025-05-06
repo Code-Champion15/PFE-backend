@@ -8,11 +8,9 @@ const Projet = require('../Models/projet');
 const {setActiveProjectPath} = require('../utils/projectPathHelper');
 const uploadPath = path.join(__dirname, '../uploads/projects');
 
-// Crée le dossier upload s’il n’existe pas
 if (!fs.existsSync(uploadPath)) {
   fs.mkdirSync(uploadPath, { recursive: true });
 }
-// Configuration multer pour les fichiers ZIP
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, uploadPath);
@@ -25,7 +23,6 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage, limits: { fileSize: 1000 * 1024 * 1024 } });
 
-// Middleware d'upload
 exports.uploadMiddleware = upload.single('projectZip');
 
 // Traitement du zip après upload

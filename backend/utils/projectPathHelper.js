@@ -9,12 +9,10 @@ exports.setActiveProjectPath = (projectPath) => {
 
 exports.getPagesPath = () => {
   if (!fs.existsSync(ACTIVE_PROJECT_PATH_FILE)) {
-    return null; // <-- Ne plus throw d'erreur ici
+    return null; 
   }
-
   const { path: projectPath } = JSON.parse(fs.readFileSync(ACTIVE_PROJECT_PATH_FILE, "utf-8"));
   if (!projectPath) return null;
-
   return path.join(projectPath, "src", "pages");
 };
 
