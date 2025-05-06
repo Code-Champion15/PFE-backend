@@ -88,9 +88,9 @@ const recast = require("recast");
 const parser = require("recast/parsers/babel");
 const { getProjectPath } = require("./projectPathHelper");
 
-exports.updateRoutesFile = (pageName) => {
-  const projectPath = getProjectPath();
-  if (!projectPath) throw new Error("Projet non défini");
+exports.updateRoutesFile = async (pageName, userId) => {
+
+  const projectPath = await getProjectPath(userId);
 
   const routesFilePath = path.join(projectPath, "src", "routes.js");
   const code = fs.readFileSync(routesFilePath, "utf-8");

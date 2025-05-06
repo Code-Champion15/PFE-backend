@@ -15,7 +15,6 @@ exports.listProjects = async (req, res) => {
     console.error("Erreur lors de la recuperation des projets: ", error);
     res.status(500).json({ error: " Erreur lors de la recuperation des projets" });
   }
-
 };
 
 exports.setActiveProject = async (req, res) => {
@@ -33,7 +32,6 @@ exports.setActiveProject = async (req, res) => {
       return res.status(400).json({ error: "Ce projet n'a pas de chemin défini" });
     }
 
-    setActiveProjectPath(projet.path);
     res.json({ message: "Projet défini comme actif.", projet });
 
   } catch (error) {
@@ -41,7 +39,6 @@ exports.setActiveProject = async (req, res) => {
     res.status(500).json({ error: "Erreur interne serveur." });
   }
 };
-
 
 //getProjects : liste les projets de l utilisateur
 exports.getUserProjects = async (req, res) => {
@@ -56,21 +53,6 @@ exports.getUserProjects = async (req, res) => {
     res.status(500).json({ error: "Erreur lors de la récupération des projets." });
   }
 };
-
-//   exports.getActiveProject = async (req, res) => {
-//     const userId = req.user?.id;
-
-//     try {
-//       const active = await ActiveProject.findOne({ where: { userId } });
-//       if (!active) return res.status(404).json({ error: "Aucun projet actif." });
-
-//       const project = await Project.findByPk(active.projectId);
-//       res.status(200).json(project);
-//     } catch (err) {
-//       console.error(err);
-//       res.status(500).json({ error: "Erreur lors de la récupération du projet actif." });
-//     }
-//   };
 
 // GET /api/projects/active - Retourne le projet actif
 exports.getActiveProject = async (req, res) => {
@@ -112,24 +94,21 @@ exports.downloadProject = async (req, res) => {
           console.error("Erreur lors du téléchargement :", err);
           return res.status(500).json({ error: "Erreur lors du téléchargement." });
         }
-
         fs.unlink(zipPath, (unlinkErr) => {
           if (unlinkErr) console.error("Erreur lors de la suppression du zip :", unlinkErr);
         });
 
         res.on("finish", async () => {
           try {
-            // Supprimer uniquement le dossier projet
+            // Supp le dossier projet
             await fsExtra.remove(projectPath);
             console.log("Dossier projet supprimé après téléchargement.");
-            // Supprimer le projet de la BDD
+            // Supp le projet de la BDD
             await Projet.destroy({ where: { id: projectId } });
           } catch (cleanupErr) {
             console.error("Erreur lors de la suppression du dossier projet :", cleanupErr);
           }
         });
-
-
       });
     });
   } catch (error) {

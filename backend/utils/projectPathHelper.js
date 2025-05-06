@@ -1,26 +1,19 @@
 const path = require("path");
 const fs = require("fs");
+const Projet = require("../Models/projet");
 
-const ACTIVE_PROJECT_PATH_FILE = path.join(__dirname, "../uploads/activeProjectPath.json");
-
-exports.setActiveProjectPath = (projectPath) => {
-  fs.writeFileSync(ACTIVE_PROJECT_PATH_FILE, JSON.stringify({ path: projectPath }));
-};
-
-exports.getPagesPath = () => {
-  if (!fs.existsSync(ACTIVE_PROJECT_PATH_FILE)) {
-    return null; 
-  }
-  const { path: projectPath } = JSON.parse(fs.readFileSync(ACTIVE_PROJECT_PATH_FILE, "utf-8"));
-  if (!projectPath) return null;
-  return path.join(projectPath, "src", "pages");
-};
-
-exports.getProjectPath = () => {
-  if (!fs.existsSync(ACTIVE_PROJECT_PATH_FILE)) {
+exports.getProjectPath = async (userId) => {
+  if (!userId) {
+    console.error("userId est undefined dans getProjectPath");
     return null;
   }
+  const projetActif = await Projet.findOne({ where: { userId, isActive: true } });
+  if (!projetActif) return null;
+  return projetActif.path;
+};
 
-  const { path: projectPath } = JSON.parse(fs.readFileSync(ACTIVE_PROJECT_PATH_FILE, "utf-8"));
-  return projectPath || null;
+exports.getPagesPath = async (userId) => {
+  const projectPath = await exports.getProjectPath(userId);
+  if (!projectPath) return null;
+  return path.join(projectPath, "src", "pages");
 };

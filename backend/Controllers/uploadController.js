@@ -58,7 +58,7 @@ fs.mkdirSync(projectDir, { recursive: true });
          }
 
     // Enregistrer dynamiquement le chemin du projet
-    setActiveProjectPath(extractDir);
+    //setActiveProjectPath(extractDir);
 
     const createdProject = await Projet.create({
       name: projectName,
