@@ -1,0 +1,4 @@
+FROM alpine
+WORKDIR /app
+RUN echo "Hello from Docker" > test.txt
+CMD cp /app/test.txt /output/test.txt

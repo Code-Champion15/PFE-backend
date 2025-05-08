@@ -24,6 +24,7 @@ var operationRoutes = require('./routes/operationRoutes');
 var visitRouter = require('./routes/visitRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 var projetRoutes = require('./routes/ProjetRoutes');
+const deployRoute = require("./routes/deploy");
 const bodyParser = require('body-parser');
 var app = express();
 
@@ -58,7 +59,7 @@ app.use('/operations', operationRoutes);
 app.use('/visites',visitRouter);
 app.use('/api', uploadRoutes);
 app.use('/api/projets', projetRoutes);
-
+app.use('/deploy', deployRoute);
 // Middleware 
 app.use((req, res, next) => {
     next(createError(404, 'Route introuvable'));
