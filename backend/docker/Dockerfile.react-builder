@@ -1,79 +1,3 @@
-# Étape 1 : Builder React avec Node.js
-# FROM node:16 AS builder
-# # Définir le dossier de travail dans le conteneur
-# WORKDIR /app
-# # Copier tous les fichiers du projet dans le conteneur
-# COPY . .
-# # Installer les dépendances
-# RUN npm install
-# # Builder le projet React (sortie dans /app/build)
-# RUN npm run build
-# # 🔍 Debug : Afficher le contenu du build généré
-# RUN ls -la /app/build
-# # Étape 2 : Extraire le build dans un dossier partagé
-# # Cette étape ne sert qu'à copier le build à l’extérieur
-# FROM alpine:3
-# # Crée un dossier temporaire pour y copier le build
-# WORKDIR /output
-# # Copier uniquement le dossier build depuis l'étape précédente
-# COPY --from=builder /app/build ./
-# # Commande par défaut — ne fait rien car on utilise `docker run` pour extraire
-# CMD ["echo", "Build done"]
-# Étape 1 : Builder React avec Node.js
-#2eme 
-# FROM node:16 AS builder
-# # Créer le dossier de travail dans le conteneur
-# WORKDIR /app
-# # Copier les fichiers du projet dans le conteneur
-# COPY . .
-# # Installer les dépendances
-# RUN npm install
-# # Builder le projet React
-# RUN npm run build
-# # Étape 2 : Extraire uniquement le build
-# FROM alpine:3
-# # Créer un dossier pour stocker le build final
-# WORKDIR /output
-# # Copier le build depuis l'étape précédente
-# COPY --from=builder /app/build .
-# # Commande par défaut
-# #CMD ["echo", " React build ready in /output"]
-# CMD ["sh", "-c", "echo Build copié dans /output"]
-
-
-# # Étape 1 : Builder React avec Node.js
-# FROM node:16 AS builder
-
-# # Argument pour recevoir le chemin vers le projet React
-# ARG PROJECT_PATH
-
-# # Dossier de travail
-# WORKDIR /app
-
-# # Copier uniquement le projet React dans le conteneur
-# COPY ${PROJECT_PATH}/package.json ./
-# COPY ${PROJECT_PATH}/public ./public
-# COPY ${PROJECT_PATH}/src ./src
-
-# # Installer les dépendances
-# RUN npm install
-
-# # Builder le projet React
-# RUN npm run build
-
-# # Étape 2 : Extraire uniquement le build
-# FROM alpine:3
-
-# # Dossier de sortie
-# WORKDIR /output
-
-# # Copier le build depuis l'étape précédente
-# COPY --from=builder /app/build /output
-
-# # Message de confirmation
-# CMD ["sh", "-c", "echo Build copié dans /output"]
-
-# Étape 1 : build React dans /app/build
 FROM node:16 AS builder
 
 ARG PROJECT_PATH
@@ -91,7 +15,7 @@ FROM alpine:3
 
 WORKDIR /output
 
-# Copie le build depuis l'étape précédente dans /tmp/build
+# Copie le build depuis l'étape précédente dans /tmp/build}
 COPY --from=builder /app/build /tmp/build
 
 # Copie réelle vers /output au moment de l'exécution du conteneur
