@@ -23,6 +23,13 @@ const Projet = sequelize.define('Projet', {
     type: DataTypes.BOOLEAN,
     defaultValue: false
   },
+  vercelUrl: {
+    type: DataTypes.STRING,
+  },
+  deploymentStatus: {
+    type: DataTypes.ENUM('pending', 'success', 'error'),
+    defaultValue: 'pending'
+  }
 }, {
   timestamps: true,
   

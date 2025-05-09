@@ -116,3 +116,19 @@ exports.downloadProject = async (req, res) => {
     res.status(500).json({ error: "Erreur interne serveur." });
   }
 };
+
+exports.getProjectsWithDeploymentInfo = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const projects = await Projet.findAll({
+      where: { userId },
+      order: [['updatedAt', 'DESC']],
+      attributes: ['id', 'name', 'updatedAt', 'deploymentStatus', 'vercelUrl', 'userId']
+    });
+
+    res.status(200).json(projects);
+  } catch (error) {
+    console.error('Erreur getProjectsWithDeploymentInfo:', error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des projets avec déploiement' });
+  }
+};
