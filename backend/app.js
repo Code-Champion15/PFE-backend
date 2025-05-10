@@ -13,7 +13,7 @@ const { connectDB } = require('./Db/db');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/userRoute');
-var pagesRouter = require('./routes/pageRoute');
+//var pagesRouter = require('./routes/pageRoute');
 var modificationRouter = require('./routes/modificationRoute');
 var adminRoutes = require("./routes/adminRoutes");
 var authRouter = require('./routes/authRoute');
@@ -25,6 +25,7 @@ var visitRouter = require('./routes/visitRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 var projetRoutes = require('./routes/ProjetRoutes');
 const deployRoute = require("./routes/deploy");
+const avisRoutes = require("./routes/avisRoutes");
 const bodyParser = require('body-parser');
 var app = express();
 
@@ -47,7 +48,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Routes
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/pages', pagesRouter);
+//app.use('/pages', pagesRouter);
 app.use('/auth', authRouter)
 app.use('/statistics', statisticsRoutes);
 app.use('/ai', aiRouter);
@@ -60,6 +61,7 @@ app.use('/visites',visitRouter);
 app.use('/api', uploadRoutes);
 app.use('/api/projets', projetRoutes);
 app.use('/deploy', deployRoute);
+app.use("/api/avis", avisRoutes);
 // Middleware 
 app.use((req, res, next) => {
     next(createError(404, 'Route introuvable'));
