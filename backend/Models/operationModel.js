@@ -23,6 +23,9 @@ const Operation = sequelize.define("Operation", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  projectId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,}
 }, {
   
   timestamps: true,        

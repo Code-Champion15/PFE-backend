@@ -2,22 +2,16 @@ FROM node:16 AS builder
 
 ARG PROJECT_PATH
 WORKDIR /app
-
 COPY ${PROJECT_PATH}/package.json ./
 COPY ${PROJECT_PATH}/public ./public
 COPY ${PROJECT_PATH}/src ./src
-
 RUN npm install
 RUN npm run build
-
 # Étape 2 : Conteneur léger avec Alpine, copie du build au runtime
 FROM alpine:3
-
 WORKDIR /output
-
 # Copie le build depuis l'étape précédente dans /tmp/build}
 COPY --from=builder /app/build /tmp/build
-
 # Copie réelle vers /output au moment de l'exécution du conteneur
 CMD cp -r /tmp/build/* /output
 

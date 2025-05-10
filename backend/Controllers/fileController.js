@@ -3,7 +3,7 @@ const path = require('path');
 const File = require('../Models/file');
 const { default: axios } = require('axios');
 const Operation = require('../Models/operationModel');
-const { getPagesPath } = require('../utils/projectPathHelper');
+const { getPagesPath, getProjectDetails } = require('../utils/projectPathHelper');
 const { updateRoutesFile } = require('../utils/routeUpdater');
 const Projet = require('../Models/projet');
 
@@ -33,7 +33,7 @@ exports.readPage = async (req, res) => {
   const filePath = path.join(pagesPath, `${req.params.pageName}.js`);  
   if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Fichier non trouvé' });
 
-  fs.readFileSync(filePath, 'utf8', (err, data) => {
+  fs.readFile(filePath, 'utf8', (err, data) => {
     if (err) return res.status(500).json({ error: 'Erreur lecture fichier' });
     res.json({ content: data });
   });
@@ -57,15 +57,21 @@ exports.updatePage = async (req, res) => {
 exports.savePageCode = async (req, res) => {
   const { pageName, code } = req.body;
   const userId = req.user?.id || null;
-    const userName = req.user?.username || "Inconnu";
+  const userName = req.user?.username || "Inconnu";
 
   if (!pageName || !code) {
     return res.status(400).json({ error: 'Nom de la page ou code manquant.' });
   }
 
-  const pagesPath = await getPagesPath(userId);
-  const filePath = path.join(pagesPath, `${pageName}.js`);
+  //const pagesPath = await getPagesPath(userId);
+  const projectDetails = await getProjectDetails(userId);
+  if (!projectDetails) {
+    return res.status(400).json({ error: 'Aucun projet actif trouvé pour cet utilisateur.' });
+  }
 
+  const { projectId, path: projectPath } = projectDetails;
+  //const filePath = path.join(pagesPath, `${pageName}.js`);
+  const filePath = path.join(projectPath, "src", "pages", `${pageName}.js`);
   fs.writeFile(filePath, code, 'utf8', async (err) => {
     if (err) {
       console.error('Erreur lors de la sauvegarde du fichier:', err);
@@ -77,6 +83,7 @@ exports.savePageCode = async (req, res) => {
         userId: userId,
         username: userName,
         fileName: `${pageName}.js`,
+        projectId: projectId,
       });
     return res.json({ message: 'Code mis à jour avec succès et operation enregistré !' });
   } catch (error) {
@@ -146,6 +153,7 @@ exports.createFile = async (req, res) => {
       userId: userId,
       username: userName,
       fileName: `${pageName}.js`,
+      projectId: projectId,
     });
 
     res.status(200).json({ message: 'Page créée avec succès.' });

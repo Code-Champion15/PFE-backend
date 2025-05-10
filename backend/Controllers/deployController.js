@@ -17,9 +17,6 @@ exports.deployProject = async (req, res) => {
       { where: { userId, name: projectName } }
     );
 
-    // await runDockerBuild(userId, projectName);
-
-    // const vercelUrl = await deployToVercel(userId, projectName);
     const vercelUrl = await deployProject(userId, projectName);
 
     await Projet.update(
