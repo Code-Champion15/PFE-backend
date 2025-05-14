@@ -24,7 +24,6 @@ async function deployProject(userId, projectName) {
             console.error("Échec suppression du dossier :", buildPath, err);
         });
 
-
         console.log("Projet accessible ici :", url);
         return url;
     } catch (error) {
@@ -32,7 +31,6 @@ async function deployProject(userId, projectName) {
         throw error;
     }
 }
-
 // Exécution directe en CLI
 if (require.main === module) {
     const [, , userId, projectName] = process.argv;

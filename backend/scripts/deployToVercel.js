@@ -10,11 +10,9 @@ async function deployToVercel(userId, projectName) {
   if (!token) {
     throw new Error("VERCEL_TOKEN non défini dans les variables d'environnement");
   }
-
   if (!fs.existsSync(buildPath)) {
     throw new Error(`Dossier build introuvable : ${buildPath}`);
   }
-
   return new Promise((resolve, reject) => {
     const cmd = `vercel deploy ${buildPath} --prod --token=${token} --confirm`;
 
@@ -25,7 +23,6 @@ async function deployToVercel(userId, projectName) {
         console.error("Erreur lors du déploiement :", stderr);
         return reject(stderr);
       }
-
       const urlMatch = stdout.match(/https?:\/\/[^\s]+\.vercel\.app/);
       const deployedUrl = urlMatch ? urlMatch[0] : null;
 
@@ -38,7 +35,6 @@ async function deployToVercel(userId, projectName) {
     });
   });
 }
-
 // Exécution CLI directe
 if (require.main === module) {
   const [,, userId, projectName] = process.argv;
@@ -46,5 +42,4 @@ if (require.main === module) {
     .then((url) => console.log(" URL déployée :", url))
     .catch((err) => console.error(err));
 }
-
 module.exports = deployToVercel;
